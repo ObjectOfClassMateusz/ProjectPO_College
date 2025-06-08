@@ -181,7 +181,7 @@ namespace ProjektPO
                     Device device = new Device(
                         new Barcode(0b001),
                         "Blender GÖTZE & JENSEN HB950K Inox z krajarką w kostkę",
-                        "Blender kuchenny to wielofunkcyjne urządzenie, które umożliwia szybkie miksowanie, blendowanie i rozdrabnianie składników.",
+                        "Blender kuchenny to wielofunkcyjne urządzenie, które umożliwia szybkie miksowanie, blendowanie i rozdrabnianie składników. Idealny do przygotowywania koktajli, zup kremów, sosów i smoothie. Wyposażony w mocny silnik i ostrza ze stali nierdzewnej, zapewnia efektywną pracę i łatwość obsługi. Niezastąpiony w każdej nowoczesnej kuchni",
                         31.99M,
                         Category.Home,
                         new ASCIImage("Products//blender.txt"),
