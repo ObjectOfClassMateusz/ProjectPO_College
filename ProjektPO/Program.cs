@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Security.Principal;
 using Assets;
 using Models;
@@ -13,6 +13,114 @@ namespace ProjektPO
 {
     class Program
     {
+        
+        static List<Product> LoadAllProducts()
+        {
+            List<Product> products = new List<Product>();
+            DirectoryInfo directory = new DirectoryInfo("data");
+            FileInfo[] files = directory.GetFiles("*.prdx");
+
+            foreach (FileInfo file in files)
+            {
+                using (var stream = File.OpenRead(file.FullName))
+                {
+                    try
+                    {
+                        var product = Serializer.Deserialize<Device>(stream);
+                        products.Add(product);
+                    }
+                    catch 
+                    {
+
+                    }
+                }
+            }
+
+            return products;
+        }
+       
+
+        static List<Product> cart = new List<Product>();
+        static void DisplaySearchResults(List<Product> found)
+        {
+            if (found.Count == 0)
+            {
+                Console.WriteLine("No products found");
+                Console.WriteLine("Press any key to go back...");
+                Console.ReadKey();
+                Console.Clear();
+                DisplayShop();
+                return;
+            }
+
+            List<string> options = found.Select((p, index) =>
+                $"{index + 1}. {p.Name} | {p.Price} zł").ToList();
+
+            options.Add("Go back to menu");
+
+            Control resultControl = new Control();
+            resultControl.AddWindow(new Window(options, 2, 2));
+
+            string choice = resultControl.DrawAndStart();
+
+            if (choice == "Go back to menu")
+            {
+                Console.Clear();
+                DisplayShop();
+                return;
+            }
+
+            int selectedIndex = options.IndexOf(choice);
+            if (selectedIndex >= 0 && selectedIndex < found.Count)
+            {
+                Product selected = found[selectedIndex];
+                cart.Add(selected);
+                Console.Clear();
+                Console.WriteLine($"Added'{selected.Name}' to your cart.");
+                Console.WriteLine("Press any key to go back...");
+                Console.ReadKey();
+            }
+
+            Console.Clear();
+            DisplayShop();
+        }
+
+
+
+        static void DisplaySearchByKeyword()
+        {
+            Console.Clear();
+            Console.Write("Type keyword: ");
+            string keyword = Console.ReadLine();
+            var products = LoadAllProducts();
+            var found = ProductSearch.SearchByKeyword(products, keyword);
+            DisplaySearchResults(found);
+        }
+
+        static void DisplaySearchByCategory()
+        {
+            Console.Clear();
+            Console.WriteLine("Categories:");
+            foreach (var cat in Enum.GetValues(typeof(Category)))
+            {
+                Console.WriteLine($"- {cat}");
+            }
+
+            Console.Write("\nName selected category: ");
+            string input = Console.ReadLine();
+
+            if (Enum.TryParse(input, true, out Category selectedCategory))
+            {
+                var products = LoadAllProducts();
+                var found = ProductSearch.SearchByCategory(products, selectedCategory);
+                DisplaySearchResults(found);
+            }
+            else
+            {
+                Console.WriteLine("Incorrect category.");
+                Console.ReadKey();
+            }
+        }
         static void DisplayProducts()
         {
             Control productsControl = new Control();
@@ -45,21 +153,15 @@ namespace ProjektPO
             Console.SetCursorPosition(20, 1);
             Console.WriteLine("Search By Category");
             Console.BackgroundColor = ConsoleColor.Black;
+
             shopControl.AddWindow(new Window(new List<string>()
             {
                 "See Products",
                 "Wish List",
-                //"Order", order insiede wishlist mate
+                "Search by Name",
+                "Search by Category",
                 "Return to menu"
             }, 1, 2));
-            shopControl.AddWindow(new Window(new List<string>()
-            {
-                "TTL's",
-                "Gaming",
-                "Home",
-                "Kichen",
-                "Motor"
-            }, 20, 2));
 
             shopControl.AddWindow(new Window(new List<string>()
             {
@@ -68,18 +170,18 @@ namespace ProjektPO
                 "Delete Product",
                 "Make Discount",
                 "Delete Discount"
-            }, 1, 9));
+            }, 20, 2));
+
             switch (shopControl.DrawAndStart())
             {
                 case "See Products":
                     DisplayProducts();
                     break;
                 case "Add Product":
-                    //
                     Device device = new Device(
                         new Barcode(0b001),
                         "Blender GÖTZE & JENSEN HB950K Inox z krajarką w kostkę",
-                        "Blender kuchenny to wielofunkcyjne urządzenie, które umożliwia szybkie miksowanie, blendowanie i rozdrabnianie składników. Idealny do przygotowywania koktajli, zup kremów, sosów i smoothie. Wyposażony w mocny silnik i ostrza ze stali nierdzewnej, zapewnia efektywną pracę i łatwość obsługi. Niezastąpiony w każdej nowoczesnej kuchni",
+                        "Blender kuchenny to wielofunkcyjne urządzenie, które umożliwia szybkie miksowanie, blendowanie i rozdrabnianie składników.",
                         31.99M,
                         Category.Home,
                         new ASCIImage("Products//blender.txt"),
@@ -87,7 +189,7 @@ namespace ProjektPO
                         230M,
                         1M,
                         1M
-                        );
+                    );
                     device.techSpecification = new Dictionary<string, string>()
                     {
                         { "Regulacja obrotów", "Mechaniczna-płynna" },
@@ -98,7 +200,12 @@ namespace ProjektPO
                     {
                         Serializer.Serialize(file, device);
                     }
-                    //
+                    break;
+                case "Search by Name":
+                    DisplaySearchByKeyword();
+                    break;
+                case "Search by Category":
+                    DisplaySearchByCategory();
                     break;
                 case "Return to menu":
                     DisplayStartMenu();
