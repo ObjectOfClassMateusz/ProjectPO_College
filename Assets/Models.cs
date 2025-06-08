@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -160,6 +160,23 @@ namespace Models
             this.voltage = new Tuple<decimal?, ElectronicSI>(volts, ElectronicSI.Voltage);
             this.current = new Tuple<decimal?, ElectronicSI>(ampesrs, ElectronicSI.Amper);
             this.logicthread = new Tuple<decimal?, ElectronicSI>(bytes, ElectronicSI.Byte);
+        }
+    }
+    public static class ProductSearch
+    {
+        public static List<Product> SearchByKeyword(IEnumerable<Product> products, string keyword)
+        {
+            keyword = keyword.ToLower();
+
+            return products.Where(p =>
+                (p.Name != null && p.Name.ToLower().Contains(keyword)) ||
+                (p.Description != null && p.Description.ToLower().Contains(keyword))
+            ).ToList();
+        }
+
+        public static List<Product> SearchByCategory(IEnumerable<Product> products, Category category)
+        {
+            return products.Where(p => p.Category == category.ToString()).ToList();
         }
     }
 }
