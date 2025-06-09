@@ -7,21 +7,173 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using ProtoBuf;
 
-#pragma warning disable SYSLIB0011
 
 namespace ProjektPO
 {
     class Program
     {
+        static List<Product> LoadAllProducts()
+        {
+            List<Product> products = new List<Product>();
+            DirectoryInfo directory = new DirectoryInfo("data");
+            FileInfo[] files = directory.GetFiles("*.prdx");
+
+            foreach (FileInfo file in files)
+            {
+                using (var stream = File.OpenRead(file.FullName))
+                {
+                    try
+                    {
+                        var product = Serializer.Deserialize<Device>(stream);
+                        products.Add(product);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+            return products;
+        }
+
+        static List<Product> cart = new List<Product>();
+        static void DisplaySearchResults(List<Product> found)
+        {
+            if (found.Count == 0)
+            {
+                Console.WriteLine("No products found");
+                Console.WriteLine("Press any key to go back...");
+                Console.ReadKey();
+                Console.Clear();
+                DisplayShop();
+                return;
+            }
+
+            List<string> options = found.Select((p, index) =>
+                $"{index + 1}. {p.Name} | {p.Price} zł").ToList();
+
+            options.Add("Go back to menu");
+
+            Control resultControl = new Control();
+            resultControl.AddWindow(new Window(options, 2, 2));
+
+            string choice = resultControl.DrawAndStart();
+
+            if (choice == "Go back to menu")
+            {
+                Console.Clear();
+                DisplayShop();
+                return;
+            }
+
+            int selectedIndex = options.IndexOf(choice);
+            if (selectedIndex >= 0 && selectedIndex < found.Count)
+            {
+                Product selected = found[selectedIndex];
+                cart.Add(selected);
+                Console.Clear();
+                Console.WriteLine($"Added'{selected.Name}' to your cart.");
+                Console.WriteLine("Press any key to go back...");
+                Console.ReadKey();
+            }
+            Console.Clear();
+            DisplayShop();
+        }
+
+
+
+        static void DisplaySearchByKeyword()
+        {
+            Console.Clear();
+            Console.Write("Type keyword: ");
+            string keyword = Console.ReadLine();
+            var products = LoadAllProducts();
+            var found = ProductSearch.SearchByKeyword(products, keyword);
+            DisplaySearchResults(found);
+        }
+
+        static void DisplaySearchByCategory()
+        {
+            Console.Clear();
+            Console.WriteLine("Categories:");
+            foreach (var cat in Enum.GetValues(typeof(Category)))
+            {
+                Console.WriteLine($"- {cat}");
+            }
+
+            Console.Write("\nName selected category: ");
+            string input = Console.ReadLine();
+
+            if (Enum.TryParse(input, true, out Category selectedCategory))
+            {
+                var products = LoadAllProducts();
+                var found = ProductSearch.SearchByCategory(products, selectedCategory);
+                DisplaySearchResults(found);
+            }
+            else
+            {
+                Console.WriteLine("Incorrect category.");
+                Console.ReadKey();
+            }
+        }
+
+
+        static void EditProduct()
+        {
+            DirectoryInfo productDirectory = new DirectoryInfo("data");
+            FileInfo[] productFiles = productDirectory.GetFiles("*.prdx");
+            List<string> productNames = new List<string>();
+            foreach (var file in productFiles)
+            {
+                productNames.Add(Path.GetFileNameWithoutExtension(file.Name));
+            }
+            productNames.Add("Return");
+            Control editControl = new Control();
+            editControl.AddWindow(new Window(productNames, 2, 2));
+            string selectedProduct = editControl.DrawAndStart();
+            if (selectedProduct == "Return")
+            {
+                DisplayShop();
+                return;
+            }
+            string filePath = $"data//{selectedProduct}.prdx";
+            //productToEdit = DatabaseAction.DeserializeProduct(filePath);
+
+            if (File.Exists(filePath))
+            {
+                Device productToEdit;
+                using (var file = File.OpenRead(filePath))
+                {
+                    productToEdit = Serializer.Deserialize<Device>(file);
+                }
+                //Editing!
+                productToEdit.setName("Edited Product Name");
+                productToEdit.setPrice(50.99M);
+                //
+                using (var file = File.Create(filePath))
+                {
+                    Serializer.Serialize(file, productToEdit);
+                }
+
+                Console.WriteLine("Product edited successfully!");
+                
+            }
+            else
+            {
+                Console.WriteLine("Error: Product file not found!");
+            }
+            //DisplayShop();
+        }
+
         static void DisplayProducts()
         {
             Control productsControl = new Control();
-            DirectoryInfo directoryWithImages = new DirectoryInfo("img//Products");
-            FileInfo[] Files = directoryWithImages.GetFiles("*.txt");
+            DirectoryInfo directoryWithImages = new DirectoryInfo("data");
+            FileInfo[] Files = directoryWithImages.GetFiles("*.prdx");
             List<string> file_names = new List<string>();
             foreach (FileInfo file in Files)
             {
-                file_names.Add(file.Name);
+                file_names.Add(Path.GetFileNameWithoutExtension(file.Name));
             }
             file_names.Add("Return");
 
@@ -32,34 +184,104 @@ namespace ProjektPO
                     DisplayShop();
                     break;
                 default:
+
                     break;
             }
         }
-        
+
+        static void DeleteProduct()
+        {
+            DirectoryInfo productDirectory = new DirectoryInfo("data");
+            FileInfo[] productFiles = productDirectory.GetFiles("*.prdx");
+            List<string> productNames = new List<string>();
+            foreach (var file in productFiles)
+            {
+                productNames.Add(Path.GetFileNameWithoutExtension(file.Name));
+            }
+            productNames.Add("Return");
+            Control deleteControl = new Control();
+            deleteControl.AddWindow(new Window(productNames, 2, 2));
+            string selectedProduct = deleteControl.DrawAndStart();
+            if (selectedProduct == "Return")
+            {
+                return;
+            }
+            string filePath = $"data//{selectedProduct}.prdx";
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+                Console.WriteLine("Product deleted successfully!");
+            }
+            else
+            {
+                Console.WriteLine("Error: Product file not found!");
+            }
+        }
+
+        static void AddProduct()
+        {
+            string name_;
+            string description_;
+            byte id_;
+            decimal price_;
+            Category category_;
+            string imagefile_;
+
+            InputField inputName = new InputField();
+            InputField inputDescription = new InputField();
+            InputField inputBarcode = new InputField();
+
+
+            Console.SetCursorPosition(4, 2);
+            Console.Write("Enter Name:");
+            name_ = inputName.DrawAndStart(4, 3);
+            Console.SetCursorPosition(4, 4);
+            Console.Write("Enter description:");
+            description_ = inputDescription.DrawAndStart(4, 5);
+            Console.SetCursorPosition(4, 6);
+            Console.Write("Enter barcode:");
+            id_ = Convert.ToByte(inputDescription.DrawAndStart(4, 7));
+            Console.SetCursorPosition(4, 8);
+            Console.Write("Enter price:");
+            price_ = Convert.ToDecimal(inputDescription.DrawAndStart(4, 9));
+
+            Window window = new Window(
+                new List<string>() 
+                { 
+                    "Home",
+                    "Kichen",
+                    "Category",
+                    "TTLs",
+                    "Gaming",
+                    "Motor",
+                    "Accesory"
+                }, 4, 11);
+            
+            category_ = (Category)(window.DrawAndStart());
+
+
+
+
+            DisplayShop();
+        }
+
         static void DisplayShop()
         {
             Control shopControl = new Control();
             Console.BackgroundColor = ConsoleColor.Green;
             Console.SetCursorPosition(1, 1);
             Console.WriteLine("Main Actions");
-            Console.SetCursorPosition(20, 1);
-            Console.WriteLine("Search By Category");
             Console.BackgroundColor = ConsoleColor.Black;
             shopControl.AddWindow(new Window(new List<string>()
             {
                 "See Products",
                 "Wish List",
                 //"Order", order insiede wishlist mate
+                "Search by Name",
+                "Search by Category",
                 "Return to menu"
             }, 1, 2));
-            shopControl.AddWindow(new Window(new List<string>()
-            {
-                "TTL's",
-                "Gaming",
-                "Home",
-                "Kichen",
-                "Motor"
-            }, 20, 2));
+
 
             shopControl.AddWindow(new Window(new List<string>()
             {
@@ -67,46 +289,62 @@ namespace ProjektPO
                 "Edit Product",
                 "Delete Product",
                 "Make Discount",
-                "Delete Discount"
-            }, 1, 9));
+                "Delete Discount",
+                "Add Product to Storage",
+                "See Storage"
+            }, 1, 10));
+
             switch (shopControl.DrawAndStart())
             {
                 case "See Products":
                     DisplayProducts();
                     break;
                 case "Add Product":
-                    //
-                    Device device = new Device(
-                        new Barcode(0b001),
-                        "Blender GÖTZE & JENSEN HB950K Inox z krajarką w kostkę",
-                        "Blender kuchenny to wielofunkcyjne urządzenie, które umożliwia szybkie miksowanie, blendowanie i rozdrabnianie składników. Idealny do przygotowywania koktajli, zup kremów, sosów i smoothie. Wyposażony w mocny silnik i ostrza ze stali nierdzewnej, zapewnia efektywną pracę i łatwość obsługi. Niezastąpiony w każdej nowoczesnej kuchni",
-                        31.99M,
-                        Category.Home,
-                        new ASCIImage("Products//blender.txt"),
-                        1000M,
-                        230M,
-                        1M,
-                        1M
-                        );
-                    device.techSpecification = new Dictionary<string, string>()
-                    {
-                        { "Regulacja obrotów", "Mechaniczna-płynna" },
-                        { "Funkcje", "Krojenie, Siekanie, Szatkowanie, Ubijanie piany, Ucieranie" }
-                    };
+                    AddProduct();
 
-                    using (var file = File.Create("data//blender.prdx"))
-                    {
-                        Serializer.Serialize(file, device);
-                    }
+                    //Product device = new Product(
+                    //    new Barcode(0b111),
+                    //    "Statyw Camrock CP-530 Czarny",
+                    //    "Camrock CP-530 to kompaktowy, poręczny statyw. Idealny dla youtuberów, vlogerów, twórców wideo oraz pasjonatów fotografii. Z łatwością zmieści się w każdej podróżnej torbie czy plecaku.",
+                    //    70.84M,
+                    //    Category.Accesory,
+                    //    new ASCIImage("Products//statyw.txt")
+                    //    );
+                    //device.techSpecification = new Dictionary<string, string>()
+                    //{
+                    //    { "Całkowity wymiar ekspozycji:", " 64 cm x 43" },
+                    //    { "Zasilanie","Baterie" }
+                    //};
+
+                    //using (var file = File.Create("data//statyw.prdx"))
+                    //{
+                    //    Serializer.Serialize(file, device);
+                   // }
                     //
+                    break;
+                case "Edit Product":
+                    {
+                        EditProduct();
+                    }
+                    break;
+
+                case "Delete Product":
+                    DeleteProduct();
                     break;
                 case "Return to menu":
                     DisplayStartMenu();
+                    break;
+                case "Search by Name":
+                    DisplaySearchByKeyword();
+                    break;
+                case "Search by Category":
+                    DisplaySearchByCategory();
                     break;
                 default:
                     break;
             }
         }
+
 
         static void DisplayStartMenu()
         {
@@ -125,20 +363,41 @@ namespace ProjektPO
             switch (control.DrawAndStart())
             {
                 case "Enter the Shop":
-                    DisplayShop();
+                    { 
+                        DisplayShop();
+                    }
                     break;
                 case "Load wish list":
-                    Console.WriteLine("X");
+                    {
+                        Console.WriteLine("X");
+                    }
                     break;
                 case "Exit":
+                    { }
                     break;
             }
         }
 
         static void Main(string[] args)
         {
-            //Byte k = 0b11111111;
-            //Console.WriteLine(k);
+            /*
+            Product device = new Product(
+                        new Barcode(0b111),
+                        "Statyw Camrock CP-530 Czarny",
+                        "Camrock CP-530 to kompaktowy, poręczny statyw. Idealny dla youtuberów, vlogerów, twórców wideo oraz pasjonatów fotografii. Z łatwością zmieści się w każdej podróżnej torbie czy plecaku.",
+                        70.84M,
+                        Category.Accesory,
+                        new ASCIImage("Products//statyw.txt")
+                        );
+
+            try
+            {
+                Console.WriteLine(((Device)device).getCurrent());
+            }
+            catch (Exception ex) {
+                Console.WriteLine(ex);
+            }*/
+
             DisplayStartMenu();
         }
     }

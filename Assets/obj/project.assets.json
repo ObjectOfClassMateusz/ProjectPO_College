@@ -2,6 +2,22 @@
   "version": 3,
   "targets": {
     "net8.0": {
+      "protobuf-net/3.0.101": {
+        "type": "package",
+        "dependencies": {
+          "protobuf-net.Core": "3.0.101"
+        },
+        "compile": {
+          "lib/net5.0/protobuf-net.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/protobuf-net.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "protobuf-net.Core/3.0.101": {
         "type": "package",
         "compile": {
@@ -18,6 +34,28 @@
     }
   },
   "libraries": {
+    "protobuf-net/3.0.101": {
+      "sha512": "mLm8VGfGylp9q+rbJDp3uw0BOeNzfGENecVz/EYGlzq3ss7tfajGXHCMoZm/GxJ9vSn9pcK22UXWZnQ5GJQMjA==",
+      "type": "package",
+      "path": "protobuf-net/3.0.101",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net461/protobuf-net.dll",
+        "lib/net461/protobuf-net.xml",
+        "lib/net5.0/protobuf-net.dll",
+        "lib/net5.0/protobuf-net.xml",
+        "lib/netcoreapp3.1/protobuf-net.dll",
+        "lib/netcoreapp3.1/protobuf-net.xml",
+        "lib/netstandard2.0/protobuf-net.dll",
+        "lib/netstandard2.0/protobuf-net.xml",
+        "lib/netstandard2.1/protobuf-net.dll",
+        "lib/netstandard2.1/protobuf-net.xml",
+        "protobuf-net.3.0.101.nupkg.sha512",
+        "protobuf-net.nuspec",
+        "protobuf-net.png"
+      ]
+    },
     "protobuf-net.Core/3.0.101": {
       "sha512": "gf9QIF0RlctfjmOjbE6eOyMulkNEsH7tHncjKj/4BTu9tkuTyrH3fv5I+35GnolJqKJ6fh9kYaezvNRL3t75+Q==",
       "type": "package",
@@ -43,6 +81,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "protobuf-net >= 3.0.101",
       "protobuf-net.Core >= 3.0.101"
     ]
   },
@@ -96,6 +135,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "protobuf-net": {
+            "target": "Package",
+            "version": "[3.0.101, )"
+          },
           "protobuf-net.Core": {
             "target": "Package",
             "version": "[3.0.101, )"

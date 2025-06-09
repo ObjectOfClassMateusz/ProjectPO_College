@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Assets;
-
 using ProtoBuf;//serializacja
-
 
 namespace Models
 {
@@ -17,21 +15,22 @@ namespace Models
         Amper='A',
         Byte='B'
     };
+
     public enum Category
     {
         TTLs,
         Gaming,
         Home,
         Kichen,
-        Motor
+        Motor,
+        Accesory
     }
 
     [ProtoContract]
     public class Barcode
     {
         [ProtoMember(1)]
-        private Byte code          {get;set;}
-
+        private Byte code{get;set;}
         public  Barcode(Byte code) 
         {this.code = code;}
         public  Byte getCode()     
@@ -97,6 +96,10 @@ namespace Models
         {
             this.price = price;
         }
+        public void setName(string newName)
+        {
+            this.name = newName;
+        }
         public Product(Barcode barcode , string name , string desc , decimal price,Category category , ASCIImage img)
         {
             this.id = barcode;
@@ -106,10 +109,13 @@ namespace Models
             this.category = category;
             this.image = img;
         }
-
-
-
+        protected Product()
+        {
+            
+        }
     }
+
+
 
     [ProtoContract]
     public class Device : Product , IElectronics
@@ -128,19 +134,19 @@ namespace Models
 
         public decimal? getPower()
         {
-            return 5.0M;
+            return power.Item1;
         }
         public decimal? getVoltage()
         {
-            return 16M;
+            return voltage.Item1;
         }
         public decimal? getCurrent()
         {
-            return 16M;
+            return current.Item1;
         }
         public decimal? getLogicThreading()
         {
-            return 16M;
+            return logicthread.Item1;
         }
         public Tuple<string, string, decimal?> getData()
         {
@@ -150,16 +156,26 @@ namespace Models
         {
             return techSpecification;
         }
+        public void setTechnicalSpecifications(string v1 , string v2)
+        {
+            techSpecification.Add(v1, v2);
+        }
         public Barcode getBarcode()
         {
             return id;
         }
+        
         public Device(Barcode barcode , string name , string desc , decimal price, Category category, ASCIImage img, decimal wats, decimal volts, decimal ampesrs, decimal bytes) : base(barcode,  name,  desc,  price, category , img)
         {
             this.power = new Tuple<decimal?, ElectronicSI>(wats, ElectronicSI.Wat);
             this.voltage = new Tuple<decimal?, ElectronicSI>(volts, ElectronicSI.Voltage);
             this.current = new Tuple<decimal?, ElectronicSI>(ampesrs, ElectronicSI.Amper);
             this.logicthread = new Tuple<decimal?, ElectronicSI>(bytes, ElectronicSI.Byte);
+        }
+
+        private Device() : base()
+        {
+
         }
     }
 }

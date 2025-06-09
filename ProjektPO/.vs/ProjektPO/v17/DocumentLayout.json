@@ -7,10 +7,10 @@
       "RelativeMoniker": "D:0:0:{A8D9BB0E-83F1-4A33-B657-5FC02A5D43B5}|ProjektPO.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FB7882A1-08ED-44B5-B046-823AF1181ABC}|..\\Assets\\Assets.csproj|d:\\cshap projekty\\projekt_po\\assets\\assets.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FB7882A1-08ED-44B5-B046-823AF1181ABC}|..\\Assets\\Assets.csproj|d:\\cshap projekty\\projekt_po\\assets\\models.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FB7882A1-08ED-44B5-B046-823AF1181ABC}|..\\Assets\\Assets.csproj|d:\\cshap projekty\\projekt_po\\assets\\models.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FB7882A1-08ED-44B5-B046-823AF1181ABC}|..\\Assets\\Assets.csproj|d:\\cshap projekty\\projekt_po\\assets\\assets.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,32 +38,32 @@
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "D:\\cshap projekty\\PROJEKT_PO\\ProjektPO\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAuwFYAAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMBAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-07T13:29:26.688Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Assets.cs",
               "DocumentMoniker": "D:\\cshap projekty\\PROJEKT_PO\\Assets\\Assets.cs",
               "RelativeDocumentMoniker": "..\\Assets\\Assets.cs",
               "ToolTip": "D:\\cshap projekty\\PROJEKT_PO\\Assets\\Assets.cs",
               "RelativeToolTip": "..\\Assets\\Assets.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJQAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAABcAAAAAAAAAAAAAwDsAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-07T13:29:20.232Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Models.cs",
               "DocumentMoniker": "D:\\cshap projekty\\PROJEKT_PO\\Assets\\Models.cs",
               "RelativeDocumentMoniker": "..\\Assets\\Models.cs",
               "ToolTip": "D:\\cshap projekty\\PROJEKT_PO\\Assets\\Models.cs",
               "RelativeToolTip": "..\\Assets\\Models.cs",
-              "ViewState": "AgIAAIoAAAAAAAAAAAAAAHUAAABIAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-07T13:29:19.076Z"
             }

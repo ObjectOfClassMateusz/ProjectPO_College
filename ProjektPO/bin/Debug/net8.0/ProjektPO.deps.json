@@ -64,6 +64,7 @@
       },
       "Assets/1.0.0": {
         "dependencies": {
+          "protobuf-net": "3.0.101",
           "protobuf-net.Core": "3.0.101"
         },
         "runtime": {

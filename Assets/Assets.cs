@@ -9,9 +9,67 @@ using System.Text.Json;
 using System.Xml.Linq;
 using System.Collections;
 using ProtoBuf;
+using ProtoBuf.Serializers;
 
 namespace Assets
 {
+    public static class ProductSearch
+    {
+        public static List<Product> SearchByKeyword(IEnumerable<Product> products, string keyword)
+        {
+            keyword = keyword.ToLower();
+
+            return products.Where(p =>
+                (p.Name != null && p.Name.ToLower().Contains(keyword)) ||
+                (p.Description != null && p.Description.ToLower().Contains(keyword))
+            ).ToList();
+        }
+
+        public static List<Product> SearchByCategory(IEnumerable<Product> products, Category category)
+        {
+            return products.Where(p => p.Category == category.ToString()).ToList();
+        }
+    }
+
+    public class InputField
+    {
+        protected StringBuilder input { get; set; }
+        public InputField()
+        {
+            input = new StringBuilder();
+        }
+
+        public string DrawAndStart(int x , int y)
+        {
+            ConsoleKeyInfo klawisz;
+            int i = 0;
+            while (true)
+            {
+                klawisz = Console.ReadKey(true);
+                switch(klawisz.Key)
+                {
+                    case ConsoleKey.Backspace:
+                        if(i != 0)
+                        {
+                            Console.SetCursorPosition(x + i - 1, y);
+                            Console.Write(' ');
+                            i--;
+                        }
+                        break;
+                    case ConsoleKey.Enter:
+                            return input.ToString();
+                        break;
+                    default:
+                        input.Append(klawisz.KeyChar);
+                        Console.SetCursorPosition(x + i, y);
+                        Console.Write(klawisz.KeyChar);
+                        i++;
+                        break;
+                }
+            }
+        }
+    }
+
     public class Window
     {
         public int cornerX { get; }
@@ -251,80 +309,33 @@ namespace Assets
     }
 
 
-
-
-
     /*
 https://app.diagrams.net/#G1nNPKJvPk5i6ZXqyXtRt_clXLcWH5EOcj#%7B%22pageId%22%3A%221r48irf5eILzQUGIeJtA%22%7D     
      */
 
     public static class DatabaseAction
     {
-        /*static public void SaveToFile(ProductStorage products)
+        public static void SerializeProduct()
         {
-            if (filePath != null && filePath != "" && products != null)
+
+        }
+
+        public static Product DeserializeProduct(string filePath)
+        {
+            if (File.Exists(filePath))
             {
-                var jsonString = JsonSerializer.Serialize(products.ToArray(), new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(filePath, jsonString);
-                Console.WriteLine("Dane zostały zapisane.");
+                Device productToEdit;
+                using (var file = File.OpenRead(filePath))
+                {
+                    productToEdit = Serializer.Deserialize<Device>(file);
+                }
+                return productToEdit;
             }
             else
             {
-                Console.WriteLine("Nie można zapisać danych: Niepoprawna ścieżka pliku lub dane są puste.");
+                throw new Exception("Haven't found file to deserialization");
             }
         }
-
-odczyt "public Product[] ReadFromFile()
-{
-    if (filePath != null && filePath != "")
-    {
-        if (File.Exists(filePath))
-        {
-            var jsonString = File.ReadAllText(filePath);
-if (jsonString != null && jsonString != "")
-{
-    Product[] products = JsonSerializer.Deserialize<Product[]>(jsonString);
-    if (products != null)
-    {
-        Console.WriteLine("Dane zostały odczytane.");
-        return products;
-    }
-}
-
-Console.WriteLine("Nie udało się zdeserializować danych. Zwracanie pustej tablicy.");
-        }
-        else
-{
-    Console.WriteLine("Plik nie istnieje. Zwracanie pustej tablicy.");
-}
-    }
-    else
-{
-    Console.WriteLine("Niepoprawna ścieżka pliku. Zwracanie pustej tablicy.");
-}
-
-return new Product[0];
-}
-"
-usuwanie "public void DeleteFile()
-{
-    if (filePath != null && filePath != "")
-    {
-        if (File.Exists(filePath))
-        {
-            File.Delete(filePath);
-Console.WriteLine("Plik został usunięty.");
-        }
-        else
-{
-    Console.WriteLine("Plik nie istnieje. Nie można go usunąć.");
-}
-    }
-    else
-{
-    Console.WriteLine("Niepoprawna ścieżka pliku. Nie można usunąć pliku.");
-}
-}"*/
     };
 
 }
