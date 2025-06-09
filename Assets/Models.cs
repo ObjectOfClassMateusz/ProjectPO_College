@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System;
+using System.IO;
+using System.Linq;
 using Assets;
-
 using ProtoBuf;//serializacja
-
 
 namespace Models
 {
@@ -17,25 +18,39 @@ namespace Models
         Amper='A',
         Byte='B'
     };
+
     public enum Category
     {
+        [ProtoEnum(Name = "TTLs")]
         TTLs,
+
+        [ProtoEnum(Name = "Gaming")]
         Gaming,
+
+        [ProtoEnum(Name = "Home")]
         Home,
-        Kichen,
-        Motor
+
+        [ProtoEnum(Name = "Kichen")]
+        Kichen, 
+
+        [ProtoEnum(Name = "Motor")]
+        Motor,
+
+        [ProtoEnum(Name = "Accesory")]
+        Accesory 
     }
 
     [ProtoContract]
     public class Barcode
     {
         [ProtoMember(1)]
-        private Byte code          {get;set;}
-
+        private Byte code{get;set;}
         public  Barcode(Byte code) 
         {this.code = code;}
         public  Byte getCode()     
         {return code;}
+
+        protected Barcode() { }
     };
 
     internal interface IProduct
@@ -54,6 +69,7 @@ namespace Models
     }
 
     [ProtoContract]
+    [ProtoInclude(100, typeof(Device))]
     public class Product : IProduct
     {
         [ProtoMember(1)]
@@ -97,6 +113,10 @@ namespace Models
         {
             this.price = price;
         }
+        public void setName(string newName)
+        {
+            this.name = newName;
+        }
         public Product(Barcode barcode , string name , string desc , decimal price,Category category , ASCIImage img)
         {
             this.id = barcode;
@@ -106,16 +126,19 @@ namespace Models
             this.category = category;
             this.image = img;
         }
-
-
-
+        protected Product()
+        {
+            
+        }
     }
+
+
 
     [ProtoContract]
     public class Device : Product , IElectronics
     {
         [ProtoMember(1)]
-        public Dictionary<string,string> techSpecification { get; set; }
+        public Dictionary<string, string> techSpecification { get; set; } = new();
         [ProtoMember(2)]
         protected Tuple<decimal?, ElectronicSI> power { get; set; }
         [ProtoMember(3)]
@@ -128,19 +151,19 @@ namespace Models
 
         public decimal? getPower()
         {
-            return 5.0M;
+            return power.Item1;
         }
         public decimal? getVoltage()
         {
-            return 16M;
+            return voltage.Item1;
         }
         public decimal? getCurrent()
         {
-            return 16M;
+            return current.Item1;
         }
         public decimal? getLogicThreading()
         {
-            return 16M;
+            return logicthread.Item1;
         }
         public Tuple<string, string, decimal?> getData()
         {
@@ -150,10 +173,15 @@ namespace Models
         {
             return techSpecification;
         }
+        public void setTechnicalSpecifications(string v1 , string v2)
+        {
+            techSpecification.Add(v1, v2);
+        }
         public Barcode getBarcode()
         {
             return id;
         }
+        
         public Device(Barcode barcode , string name , string desc , decimal price, Category category, ASCIImage img, decimal wats, decimal volts, decimal ampesrs, decimal bytes) : base(barcode,  name,  desc,  price, category , img)
         {
             this.power = new Tuple<decimal?, ElectronicSI>(wats, ElectronicSI.Wat);
@@ -161,22 +189,10 @@ namespace Models
             this.current = new Tuple<decimal?, ElectronicSI>(ampesrs, ElectronicSI.Amper);
             this.logicthread = new Tuple<decimal?, ElectronicSI>(bytes, ElectronicSI.Byte);
         }
-    }
-    public static class ProductSearch
-    {
-        public static List<Product> SearchByKeyword(IEnumerable<Product> products, string keyword)
-        {
-            keyword = keyword.ToLower();
 
-            return products.Where(p =>
-                (p.Name != null && p.Name.ToLower().Contains(keyword)) ||
-                (p.Description != null && p.Description.ToLower().Contains(keyword))
-            ).ToList();
-        }
-
-        public static List<Product> SearchByCategory(IEnumerable<Product> products, Category category)
+        private Device() : base()
         {
-            return products.Where(p => p.Category == category.ToString()).ToList();
+
         }
     }
 }
